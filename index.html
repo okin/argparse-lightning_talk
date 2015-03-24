@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=1024, user-scalable=no">
+
+  <title>Quick Argparse HowTo</title>
+
+  <!-- Required stylesheet -->
+  <link rel="stylesheet" media="screen" href="core/deck.core.css">
+
+  <!-- Extension CSS files go here. Remove or add as needed. -->
+  <link rel="stylesheet" media="screen" href="extensions/goto/deck.goto.css">
+  <link rel="stylesheet" media="screen" href="extensions/menu/deck.menu.css">
+  <link rel="stylesheet" media="screen" href="extensions/navigation/deck.navigation.css">
+  <link rel="stylesheet" media="screen" href="extensions/status/deck.status.css">
+  <link rel="stylesheet" media="screen" href="extensions/scale/deck.scale.css">
+
+  <!-- Style theme. More available in /themes/style/ or create your own. -->
+  <!-- <link rel="stylesheet" media="screen" href="themes/style/web-2.0.css"> -->
+  <link rel="stylesheet" media="screen" href="themes/style/swiss.css">
+
+  <!-- Transition theme. More available in /themes/transition/ or create your own. -->
+  <link rel="stylesheet" media="screen" href="themes/transition/horizontal-slide.css">
+
+  <!-- Basic black and white print styles -->
+  <link rel="stylesheet" media="print" href="core/print.css">
+
+  <!-- Required Modernizr file -->
+  <script src="modernizr.custom.js"></script>
+
+  <!-- syntax highlighting -->
+  <link rel="stylesheet" href="styles/monokai_sublime.css">
+  <script src="highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body>
+  <div class="deck-container">
+
+    <!-- Begin slides. Just make elements with a class of slide. -->
+
+    <section class="slide">
+      <h1>argparse</h1>
+    </section>
+
+    <section class="slide">
+	<h2>from pyugrm import speaker</h2>
+	<pre><code class="python">&gt;&gt;&gt; print(speaker.name)
+Niko Wenselowski
+
+&gt;&gt;&gt; print(speaker.job)
+Developer at uib gmbh
+
+&gt;&gt;&gt; print(speaker.twitter)
+@amokleben
+
+&gt;&gt;&gt; print(speaker.github_url)
+https://github.com/okin
+
+&gt;&gt;&gt; print(speaker.notable_things)
+Organises the Python Stammtisch Darmstadt
+
+&gt;&gt;&gt; speaker.talk()</code></pre>
+    </section>
+
+    <section class="slide">
+    <h2>argparse</h2>
+
+    <ul>
+      <li>parses command-line arguments
+      <li>builtin since Python 2.7
+      <li>Obsoletes <em>getopt</em> and <em>optparse</em>
+      <li>Easy to convert from <em>optparse</em> to <em>argparse</em>
+    </ul>
+
+    <div class="slide">
+      <h3>Why?</h3>
+      <ul>
+        <li>The Future Is Here
+        <li>optparse is deprecated
+        <li>Powerful
+        <li>Parsing the commandline is fun again
+      </ul>
+    </div>
+    </section>
+
+    <section class="slide">
+      <h2>Starting</h2>
+      <pre><code class="python">import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-s', help='a short option')
+parser.add_argument('--long-opt', help='a long option')
+parser.add_argument('-b', '--both', help='both')
+parser.add_argument('-t', '--tri', '-3', help='and more!')
+
+args = parser.parse_args()</code></pre>
+      <pre class="slide"><code class="python">usage: 1.py [-h] [-s S] [--long-opt LONG_OPT] [-b BOTH] [-t TRI]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s S                  a short option
+  --long-opt LONG_OPT   a long option
+  -b BOTH, --both BOTH  both
+  -t TRI, --tri TRI, -3 TRI
+                        and more!</code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Positional arguments</h2>
+      <pre><code class="python">import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("first")
+parser.add_argument("second")
+
+args = parser.parse_args()
+print(args.first)
+print(args.second)</code></pre>
+  	   <pre class="slide"><code class="python">usage: 2.py [-h] first second
+
+positional arguments:
+  first
+  second
+
+optional arguments:
+  -h, --help  show this help message and exit</code></pre>
+
+        <pre class="slide"><code class="python">$ python3 2.py eins
+usage: 2.py [-h] first second
+2.py: error: the following arguments are required: second</code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Customising an ArgumentParser</h2>
+      <pre><code class="python">parser = argparse.ArgumentParser(prog="program name",
+                                 description="Doing amazing things!",
+                                 epilog="Still amazing after the help.",
+                                 prefix_chars='*')
+parser.add_argument('**thingy')
+args = parser.parse_args()
+
+print (args.thingy)</code></pre>
+      <pre class="slide"><code>$ python3 3.py \*h
+usage: program name [*h] [**thingy THINGY]
+
+Doing amazing things!
+
+optional arguments:
+  *h, **help       show this help message and exit
+  **thingy THINGY
+
+Still amazing after the help.</code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Customising Arguments</h2>
+      <pre><code class="python">parser = argparse.ArgumentParser()
+parser.add_argument('--location', default="CCC FFM HQ")
+parser.add_argument('--no-ug', action="store_false", help="Disable usergroup.")
+parser.add_argument('-a', '--attendee', dest="attendees", action="append")
+args = parser.parse_args()
+
+print (args.attendees)</code></pre>
+      <pre class="slide"><code>$ python3 4.py -a foo -a bar
+['foo', 'bar']</code></pre>
+    </section>
+
+    <section class="slide">
+      <pre><code class="python">parser = argparse.ArgumentParser()
+parser.add_argument('--speaker', nargs=2)
+parser.add_argument('--visitors', type=int)
+parser.add_argument('-a', '--attendee', dest="attendees", nargs='*')
+args = parser.parse_args()</code></pre>
+      <pre class="slide"><code>$ python3 5.py --speaker Niko
+usage: 5.py [-h] [--speaker SPEAKER SPEAKER] [--visitors VISITORS]
+            [-a [ATTENDEES [ATTENDEES ...]]]
+5.py: error: argument --speaker: expected 2 arguments</code></pre>
+
+      <pre class="slide"><code>$ python3 5.py --speaker Niko W. --visitors bla
+usage: 5.py [-h] [--speaker SPEAKER SPEAKER] [--visitors VISITORS]
+            [-a [ATTENDEES [ATTENDEES ...]]]
+5.py: error: argument --visitors: invalid int value: 'bla'</code></pre>
+
+      <pre class="slide"><code>$ python3 5.py -a foo bar baz banane
+['foo', 'bar', 'baz', 'banane']</code></pre>
+    </section>
+
+    <section class="slide">
+      <pre><code class="python">parser = argparse.ArgumentParser()
+parser.add_argument('--chaos', choices=['CHAOS', 'nope'])
+parser.add_argument('--destroy', action="store_true", required=True)
+args = parser.parse_args()</code></pre>
+      <pre class="slide"><code>$ python3 6.py -h
+usage: 6.py [-h] [--chaos {CHAOS,nope}] --destroy
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --chaos {CHAOS,nope}
+  --destroy</code></pre>
+      <pre class="slide"><code>$ python3 6.py --chaos lol
+usage: 6.py [-h] [--chaos {CHAOS,nope}] --destroy
+6.py: error: argument --chaos: invalid choice: 'lol' (choose from 'CHAOS', 'nope')</code></pre>
+      <pre class="slide"><code>$ python3 6.py --chaos CHAOS
+usage: 6.py [-h] [--chaos {CHAOS,nope}] --destroy
+6.py: error: the following arguments are required: --destroy</code></pre>
+    </section>
+
+    <!-- End slides. -->
+
+    <!-- Begin extension snippets. Add or remove as needed. -->
+
+    <!-- deck.navigation snippet -->
+    <div aria-role="navigation">
+      <a href="#" class="deck-prev-link" title="Previous">&#8592;</a>
+      <a href="#" class="deck-next-link" title="Next">&#8594;</a>
+    </div>
+
+    <!-- deck.status snippet -->
+    <p class="deck-status" aria-role="status">
+      <span class="deck-status-current"></span>
+      <span class="deck-status-total"></span>
+    </p>
+
+    <!-- deck.goto snippet -->
+    <form action="." method="get" class="goto-form">
+      <label for="goto-slide">Go to slide:</label>
+      <input type="text" name="slidenum" id="goto-slide" list="goto-datalist">
+      <datalist id="goto-datalist"></datalist>
+      <input type="submit" value="Go">
+    </form>
+
+    <!-- End extension snippets. -->
+  </div>
+
+<!-- Required JS files. -->
+<script src="jquery.min.js"></script>
+<script src="core/deck.core.js"></script>
+
+<!-- Extension JS files. Add or remove as needed. -->
+<script src="extensions/menu/deck.menu.js"></script>
+<script src="extensions/goto/deck.goto.js"></script>
+<script src="extensions/status/deck.status.js"></script>
+<script src="extensions/navigation/deck.navigation.js"></script>
+<script src="extensions/scale/deck.scale.js"></script>
+
+<!-- Initialize the deck. You can put this in an external file if desired. -->
+<script>
+  $(function() {
+    $.deck('.slide');
+  });
+</script>
+</body>
+</html>
